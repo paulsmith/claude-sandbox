@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# claude-code-sandbox  — run Claude Code inside a tighter macOS sandbox
+# claude-sandbox  — run Claude Code inside a tighter macOS sandbox
 #
 # Copyright (c) 2025 Paul Smith <paulsmith@pobox.com>
 # SPDX-License-Identifier: MIT
 #
-#   claude-code-sandbox            # generate profile + run claude (default)
-#   claude-code-sandbox run …args  # same, pass args through
-#   claude-code-sandbox generate   # build the profile only
-#   claude-code-sandbox profile    # print last-generated profile path
-#   claude-code-sandbox help       # this text
+#   claude-sandbox            # generate profile + run claude (default)
+#   claude-sandbox run …args  # same, pass args through
+#   claude-sandbox generate   # build the profile only
+#   claude-sandbox profile    # print last-generated profile path
+#   claude-sandbox help       # this text
 #
 # Note: sandbox-exec(1) is deprecated but works on macOS 14 + 15 (June 2025).
 #-------------------------------------------------------------------------------
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 TMPDIR="${TMPDIR:-/tmp}"
-PROFILE_NAME="claude-code-sandbox-$(basename "$(pwd -P)")"
+PROFILE_NAME="claude-sandbox-$(basename "$(pwd -P)")"
 PROFILE_FILE="$TMPDIR/$PROFILE_NAME.sb"
 
 usage() { grep -E '^# ' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
