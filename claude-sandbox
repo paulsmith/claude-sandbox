@@ -25,7 +25,7 @@ TMPDIR="${TMPDIR:-/tmp}"
 PROFILE_NAME="claude-sandbox-$(basename "$(pwd -P)")-$(printf "%x" "$(pwd -P | cksum | cut -d' ' -f1)")"
 PROFILE_FILE="$TMPDIR/$PROFILE_NAME.sb"
 
-usage() { grep -E '^# ' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { grep -E '^# ' "${BASH_SOURCE[0]}" | /usr/bin/sed 's/^# \{0,1\}//'; }
 
 detect_package_paths() {
   local paths=()
@@ -183,7 +183,7 @@ __DETECTED_EXEC_PATHS__
 EOF
 
   # First, replace basic placeholders
-  sed -i '' \
+  /usr/bin/sed -i '' \
     -e "s|__PROJECT_DIR__|$project_dir|g" \
     -e "s|__HOME__|$home_dir|g" \
     "$PROFILE_FILE"
@@ -191,18 +191,18 @@ EOF
   # Then replace detected path placeholders with actual paths
   for path in "${detected_paths[@]}"; do
     # Add to read paths section
-    sed -i '' "/__DETECTED_READ_PATHS__/i\\
+    /usr/bin/sed -i '' "/__DETECTED_READ_PATHS__/i\\
   (subpath \"$path\")
 " "$PROFILE_FILE"
     
     # Add to exec paths section
-    sed -i '' "/__DETECTED_EXEC_PATHS__/i\\
+    /usr/bin/sed -i '' "/__DETECTED_EXEC_PATHS__/i\\
   (subpath \"$path\")
 " "$PROFILE_FILE"
     
     # Add .local paths to user paths section  
     if [[ "$path" == *"/.local" ]]; then
-      sed -i '' "/__DETECTED_USER_PATHS__/i\\
+      /usr/bin/sed -i '' "/__DETECTED_USER_PATHS__/i\\
 (allow file-read*\\
   (subpath \"$path\")\\
 )
@@ -211,7 +211,7 @@ EOF
   done
   
   # Remove placeholder markers
-  sed -i '' \
+  /usr/bin/sed -i '' \
     -e "/__DETECTED_READ_PATHS__/d" \
     -e "/__DETECTED_USER_PATHS__/d" \
     -e "/__DETECTED_EXEC_PATHS__/d" \
@@ -219,7 +219,7 @@ EOF
   
   # Add comment if no user paths were added
   if ! grep -q "/.local" "$PROFILE_FILE"; then
-    sed -i '' '/^;; ---------- global npm\/pipx\/cargo bins/a\
+    /usr/bin/sed -i '' '/^;; ---------- global npm\/pipx\/cargo bins/a\
 ;; No user package paths detected
 ' "$PROFILE_FILE"
   fi
