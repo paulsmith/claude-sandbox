@@ -51,23 +51,7 @@ generate_profile() {
   
   # Detect available package manager paths
   local detected_paths=()
-  
-  # Homebrew detection (ARM vs Intel Mac)
-  if [[ -d "/opt/homebrew" ]]; then
-    detected_paths+=("/opt/homebrew")
-  elif [[ -d "/usr/local/Homebrew" ]]; then
-    detected_paths+=("/usr/local")
-  fi
-  
-  # User binaries (npm global, pipx, cargo, etc.)
-  if [[ -d "$HOME/.local" ]]; then
-    detected_paths+=("$HOME/.local")
-  fi
-  
-  # Nix package manager
-  if [[ -d "/nix/store" ]]; then
-    detected_paths+=("/nix/store")
-  fi
+  readarray -t detected_paths < <(detect_package_paths)
 
   cat >"$PROFILE_FILE" <<'EOF'
 ;; ------------------------------------------------------------------
