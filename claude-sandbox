@@ -228,6 +228,7 @@ run_claude() {
   generate_profile
   echo "→ Running Claude Code sandboxed in:  $PWD"
   echo "→ Profile: $PROFILE_FILE"
+  ulimit -u 1024
   exec sandbox-exec -f "$PROFILE_FILE" claude "$@"
 }
 
