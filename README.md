@@ -23,14 +23,14 @@ The goal here is to prevent some damaging footguns, while acknowledging there ar
 
 ## Installation
 
-1. Download the `claude-code-sandbox` script to a directory in your PATH (e.g., `~/.local/bin/`):
+1. Download the `claude-sandbox` script to a directory in your PATH (e.g., `~/.local/bin/`):
    ```bash
-   curl -o ~/.local/bin/claude-code-sandbox https://raw.githubusercontent.com/paulsmith/claude-code-sandbox
+   curl -o ~/.local/bin/claude-sandbox https://raw.githubusercontent.com/paulsmith/claude-sandbox
    ```
 
 2. Make it executable:
    ```bash
-   chmod +x ~/.local/bin/claude-code-sandbox
+   chmod +x ~/.local/bin/claude-sandbox
    ```
 
 The script is self-contained; no separate sandbox profile file is needed.
@@ -42,28 +42,28 @@ The script has several modes:
 ### Run Claude Code (default)
 ```bash
 cd /path/to/your/project
-claude-code-sandbox # or: claude-code-sandbox run
+claude-sandbox # or: claude-sandbox run
 ```
 
 ### Generate sandbox profile only
 ```bash
-claude-code-sandbox generate
-cat $(claude-code-sandbox profile) # inspect if you're curious
+claude-sandbox generate
+cat $(claude-sandbox profile) # inspect if you're curious
 ```
 
 ### View the profile path
 ```bash
-claude-code-sandbox profile
+claude-sandbox profile
 ```
 
 ### Show help
 ```bash
-claude-code-sandbox help
+claude-sandbox help
 ```
 
 All additional arguments after `run` are passed to `claude`:
 ```bash
-claude-code-sandbox run --no-auto-close
+claude-sandbox run --no-auto-close
 ```
 
 ## How It Works
@@ -83,7 +83,7 @@ claude-code-sandbox run --no-auto-close
 
 ## Customization
 
-Open the `generate_profile()` heredoc in `claude-code-sandbox` and tweak:
+Open the `generate_profile()` heredoc in `claude-sandbox` and tweak:
 - More global tools – add extra (subpath "/path") lines under the global npm section.
 - Different secrets – extend the Deny list if you keep credentials elsewhere.
 - Stricter network policy – comment out (allow network*) and use a proxy if you want outbound control.
@@ -104,8 +104,8 @@ This sandbox provides defense-in-depth but is not a complete security solution f
 
 If Claude Code fails to start:
 1. Check that all required paths in the embedded template exist on your system
-2. Run `claude-code-sandbox generate` to create a profile, then debug with `sandbox-exec -f $(claude-code-sandbox profile) -D trace claude`
-3. Check the generated profile with `cat $(claude-code-sandbox profile)` to verify paths
+2. Run `claude-sandbox generate` to create a profile, then debug with `sandbox-exec -f $(claude-sandbox profile) -D trace claude`
+3. Check the generated profile with `cat $(claude-sandbox profile)` to verify paths
 4. The sandbox part of the macOS kernel logs to the system console, you can inspect it with `log stream --style compact --predicate 'sender=="Sandbox"'`
 
 ## More Background
