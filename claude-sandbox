@@ -95,14 +95,8 @@ __DETECTED_USER_PATHS__
   (subpath "/System")
   (subpath "/bin")
   (subpath "/sbin")
-  (subpath "__PROJECT_DIR__")
   (literal "/usr/bin/env")
 __DETECTED_EXEC_PATHS__
-)
-
-;; ---------- project workspace (RW) --------------------------------
-(allow file-read* file-write* file-map-executable
-  (subpath "__PROJECT_DIR__")
 )
 
 ;; ---------- temp dirs ---------------------------------------------
@@ -171,6 +165,14 @@ __DETECTED_EXEC_PATHS__
   (subpath "__HOME__/Movies")
   (subpath "__HOME__/Music")
   (regex "^__HOME__/\\.(ssh|aws|gnupg|kube|docker|config)($|/)")
+)
+
+;; ---------- project workspace (RW) --------------------------------
+(allow file-read* file-write* file-map-executable
+  (subpath "__PROJECT_DIR__")
+)
+(allow process-exec
+  (subpath "__PROJECT_DIR__")
 )
 
 ;; ---------- networking --------------------------------------------
