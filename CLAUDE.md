@@ -23,10 +23,12 @@ This is a macOS security wrapper for Claude Code that uses Apple's deprecated bu
 
 ### Sandbox Profile Structure
 The embedded profile template includes:
-- System file access (read-only): `/System`, `/usr`, `/bin`, `/sbin`, homebrew, nix
+- System file access (read-only): `/System`, `/usr`, `/bin`, `/sbin`, plus dynamically detected package manager paths (homebrew, nix, user local binaries)
 - Project workspace (full access): Current working directory and subdirectories
 - Claude config access: `~/.claude` directory and `~/.claude.json`
 - Temp directory access: `/tmp` and macOS system temp directories
+- User preferences: `~/Library/Preferences` (read-only)
+- Process controls: fork, exec permissions, mach-lookup services for system integration
 - Explicit denials: Documents, Desktop, Downloads, SSH keys, AWS credentials, etc.
 - Network access: Unrestricted (required for Claude API)
 
@@ -35,18 +37,20 @@ The embedded profile template includes:
 The script is designed to be installed to a directory in PATH (e.g., `~/.local/bin/`) and run from project directories:
 
 ```bash
-# Install
-curl -o ~/.local/bin/claude-code-sandbox https://raw.githubusercontent.com/paulsmith/claude-code-sandbox
-chmod +x ~/.local/bin/claude-code-sandbox
+# Install  
+curl -o ~/.local/bin/claude-sandbox https://raw.githubusercontent.com/paulsmith/claude-sandbox/main/claude-sandbox
+chmod +x ~/.local/bin/claude-sandbox
 
 # Use
 cd /path/to/project
-claude-code-sandbox
+claude-sandbox
 ```
 
 ## Development Notes
 
 - Script uses `set -euo pipefail` for strict error handling
-- Profile names are based on current directory basename for uniqueness
-- Variable replacement uses `sed` to substitute `__PROJECT_DIR__` and `__HOME__` placeholders
-- Requires macOS with `sandbox-exec` (deprecated in macOS 14 but still functional)
+- Profile names include directory basename + checksum hash for uniqueness: `claude-sandbox-{basename}-{hash}.sb`
+- Dynamic package manager detection for homebrew (ARM/Intel Mac), nix, and user local binaries
+- Variable replacement uses `sed` to substitute `__PROJECT_DIR__`, `__HOME__`, and detected path placeholders
+- Ulimit process count restriction (1024) applied before sandbox execution
+- Requires macOS with `sandbox-exec` (deprecated in macOS 14 but still functional as of macOS 15)
