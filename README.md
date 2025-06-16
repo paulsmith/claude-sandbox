@@ -25,7 +25,7 @@ The goal here is to prevent some damaging footguns, while acknowledging there ar
 
 1. Download the `claude-sandbox` script to a directory in your PATH (e.g., `~/.local/bin/`):
    ```bash
-   curl -o ~/.local/bin/claude-sandbox https://raw.githubusercontent.com/paulsmith/claude-sandbox
+   curl -o ~/.local/bin/claude-sandbox https://raw.githubusercontent.com/paulsmith/claude-sandbox/main/claude-sandbox
    ```
 
 2. Make it executable:
