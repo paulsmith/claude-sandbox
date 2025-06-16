@@ -15,6 +15,12 @@
 
 set -euo pipefail
 
+# Check for sandbox-exec availability early
+if ! command -v sandbox-exec >/dev/null 2>&1; then
+  echo "Error: sandbox-exec not found. This tool requires macOS with sandbox-exec." >&2
+  exit 1
+fi
+
 TMPDIR="${TMPDIR:-/tmp}"
 PROFILE_NAME="claude-sandbox-$(basename "$(pwd -P)")-$(printf "%x" "$(pwd -P | cksum | cut -d' ' -f1)")"
 PROFILE_FILE="$TMPDIR/$PROFILE_NAME.sb"
