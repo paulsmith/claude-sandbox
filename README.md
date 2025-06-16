@@ -69,10 +69,10 @@ claude-sandbox run --dangerously-skip-permissions
 ## How It Works
 
 1. The script generates a temporary sandbox profile from its embedded template
-2. It replaces `REPLACE_PWD` with your current working directory path
+2. It replaces `__PROJECT_DIR__` and `__HOME__` with your current working directory and home directory paths
 3. It runs Claude Code inside the sandbox using `sandbox-exec`
 4. The sandbox restricts file operations (default deny) according to the profile
-5. Profile files are created in `/tmp` with unique names per project directory
+5. Profile files are created in `/tmp` with unique names including directory basename and checksum hash
 
 ## Limitations
 
@@ -84,8 +84,8 @@ claude-sandbox run --dangerously-skip-permissions
 ## Customization
 
 Open the `generate_profile()` heredoc in `claude-sandbox` and tweak:
-- More global tools – add extra (subpath "/path") lines under the global npm section.
-- Different secrets – extend the Deny list if you keep credentials elsewhere.
+- More global tools – add extra (subpath "/path") lines or modify the `detect_package_paths()` function.
+- Different secrets – extend the deny list regex patterns if you keep credentials elsewhere.
 - Stricter network policy – comment out (allow network*) and use a proxy if you want outbound control.
 
 ## Possible Future Improvements
@@ -105,7 +105,7 @@ This sandbox provides defense-in-depth but is not a complete security solution f
 If Claude Code fails to start:
 1. Check that all required paths in the embedded template exist on your system
 2. Run `claude-sandbox generate` to create a profile, then debug with `sandbox-exec -f $(claude-sandbox profile) -D trace claude`
-3. Check the generated profile with `cat $(claude-sandbox profile)` to verify paths
+3. Check the generated profile with `cat $(claude-sandbox profile)` to verify paths and detected package manager paths
 4. The sandbox part of the macOS kernel logs to the system console, you can inspect it with `log stream --style compact --predicate 'sender=="Sandbox"'`
 
 ## More Background
