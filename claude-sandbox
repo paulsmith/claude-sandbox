@@ -21,10 +21,53 @@ PROFILE_FILE="$TMPDIR/$PROFILE_NAME.sb"
 
 usage() { grep -E '^# ' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
+detect_package_paths() {
+  local paths=()
+  
+  # Homebrew detection (ARM vs Intel Mac)
+  if [[ -d "/opt/homebrew" ]]; then
+    paths+=("/opt/homebrew")
+  elif [[ -d "/usr/local/Homebrew" ]]; then
+    paths+=("/usr/local")
+  fi
+  
+  # User binaries (npm global, pipx, cargo, etc.)
+  if [[ -d "$HOME/.local" ]]; then
+    paths+=("$HOME/.local")
+  fi
+  
+  # Nix package manager
+  if [[ -d "/nix/store" ]]; then
+    paths+=("/nix/store")
+  fi
+  
+  printf '%s\n' "${paths[@]}"
+}
+
 generate_profile() {
   local project_dir home_dir
   project_dir="$(pwd -P)"
   home_dir="$HOME"
+  
+  # Detect available package manager paths
+  local detected_paths=()
+  
+  # Homebrew detection (ARM vs Intel Mac)
+  if [[ -d "/opt/homebrew" ]]; then
+    detected_paths+=("/opt/homebrew")
+  elif [[ -d "/usr/local/Homebrew" ]]; then
+    detected_paths+=("/usr/local")
+  fi
+  
+  # User binaries (npm global, pipx, cargo, etc.)
+  if [[ -d "$HOME/.local" ]]; then
+    detected_paths+=("$HOME/.local")
+  fi
+  
+  # Nix package manager
+  if [[ -d "/nix/store" ]]; then
+    detected_paths+=("/nix/store")
+  fi
 
   cat >"$PROFILE_FILE" <<'EOF'
 ;; ------------------------------------------------------------------
@@ -47,17 +90,14 @@ generate_profile() {
   (subpath "/usr")
   (subpath "/bin")
   (subpath "/sbin")
-  (subpath "/opt/homebrew")
   (subpath "/Library/Frameworks")
   (subpath "/private/etc")
-  (subpath "/nix/store")
   (subpath "/var/db/dyld")
+__DETECTED_READ_PATHS__
 )
 
 ;; ---------- global npm/pipx/cargo bins ----------------------------
-(allow file-read*
-  (subpath "__HOME__/.local/lib/node_modules")
-)
+__DETECTED_USER_PATHS__
 
 ;; ---------- executable paths --------------------------------------
 (allow process-exec
@@ -65,11 +105,9 @@ generate_profile() {
   (subpath "/System")
   (subpath "/bin")
   (subpath "/sbin")
-  (subpath "/opt/homebrew")
-  (subpath "/nix/store")
-  (subpath "__HOME__/.local")
   (subpath "__PROJECT_DIR__")
   (literal "/usr/bin/env")
+__DETECTED_EXEC_PATHS__
 )
 
 ;; ---------- project workspace (RW) --------------------------------
@@ -110,9 +148,28 @@ generate_profile() {
   (global-name "com.apple.system.opendirectoryd.libinfo")
   (global-name "com.apple.SystemConfiguration.DNSConfiguration")
   (global-name "com.apple.coreservices.launchservicesd")
+  (global-name "com.apple.CoreServices.coreservicesd")
   (global-name "com.apple.system.notification_center")
   (global-name "com.apple.logd")
   (global-name "com.apple.diagnosticd")
+  (global-name "com.apple.lsd.mapdb")
+  (global-name "com.apple.lsd.modifydb")
+  (global-name "com.apple.coreservices.quarantine-resolver")
+)
+
+;; ---------- Launch Services needed by /usr/bin/open --------------
+(allow mach-lookup
+  (regex "^com\\.apple\\.lsd(\\..*)?$")                   ;; lsd + its mapdb / modifydb helpers
+)
+
+;; ---------- Notification Center shared-memory (RO) ---------------
+(allow ipc-posix-shm-read-data
+  (ipc-posix-name "apple.shm.notification_center")
+)
+
+;; ---------- User-level preference reads (RO) ---------------------
+(allow file-read*
+  (subpath "__HOME__/Library/Preferences")
 )
 
 ;; ---------- explicit sensitive DENY list --------------------------
@@ -128,12 +185,52 @@ generate_profile() {
 
 ;; ---------- networking --------------------------------------------
 (allow network*)
+
+(allow process-fork)
+(allow lsopen)
 EOF
 
+  # First, replace basic placeholders
   sed -i '' \
     -e "s|__PROJECT_DIR__|$project_dir|g" \
     -e "s|__HOME__|$home_dir|g" \
     "$PROFILE_FILE"
+  
+  # Then replace detected path placeholders with actual paths
+  for path in "${detected_paths[@]}"; do
+    # Add to read paths section
+    sed -i '' "/__DETECTED_READ_PATHS__/i\\
+  (subpath \"$path\")
+" "$PROFILE_FILE"
+    
+    # Add to exec paths section
+    sed -i '' "/__DETECTED_EXEC_PATHS__/i\\
+  (subpath \"$path\")
+" "$PROFILE_FILE"
+    
+    # Add .local paths to user paths section  
+    if [[ "$path" == *"/.local" ]]; then
+      sed -i '' "/__DETECTED_USER_PATHS__/i\\
+(allow file-read*\\
+  (subpath \"$path\")\\
+)
+" "$PROFILE_FILE"
+    fi
+  done
+  
+  # Remove placeholder markers
+  sed -i '' \
+    -e "/__DETECTED_READ_PATHS__/d" \
+    -e "/__DETECTED_USER_PATHS__/d" \
+    -e "/__DETECTED_EXEC_PATHS__/d" \
+    "$PROFILE_FILE"
+  
+  # Add comment if no user paths were added
+  if ! grep -q "/.local" "$PROFILE_FILE"; then
+    sed -i '' '/^;; ---------- global npm\/pipx\/cargo bins/a\
+;; No user package paths detected
+' "$PROFILE_FILE"
+  fi
 }
 
 run_claude() {
