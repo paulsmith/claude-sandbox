@@ -16,7 +16,7 @@
 set -euo pipefail
 
 TMPDIR="${TMPDIR:-/tmp}"
-PROFILE_NAME="claude-sandbox-$(basename "$(pwd -P)")"
+PROFILE_NAME="claude-sandbox-$(basename "$(pwd -P)")-$(printf "%x" "$(pwd -P | cksum | cut -d' ' -f1)")"
 PROFILE_FILE="$TMPDIR/$PROFILE_NAME.sb"
 
 usage() { grep -E '^# ' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
