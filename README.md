@@ -63,7 +63,7 @@ claude-sandbox help
 
 All additional arguments after `run` are passed to `claude`:
 ```bash
-claude-sandbox run --no-auto-close
+claude-sandbox run --dangerously-skip-permissions
 ```
 
 ## How It Works
