@@ -5,6 +5,10 @@ A security wrapper for [Claude Code](https://github.com/anthropic-ai/claude-code
 > [!WARNING]
 > **Heads-up**: `sandbox-exec` is deprecated in macOS 14 (Sonoma), but still functional as of June 2025 in macOS 15 (Sequoia). Apple may remove it in a future release.
 
+## Demo
+
+[![asciicast](https://asciinema.org/a/cmbhNcAOiNjrfWcLiqdUa36q0.svg)](https://asciinema.org/a/cmbhNcAOiNjrfWcLiqdUa36q0)
+
 ## Overview
 
 This tool provides additional security when running Claude Code with permission skipping enabled (`--dangerously-skip-permissions`). It creates a sandbox that:
