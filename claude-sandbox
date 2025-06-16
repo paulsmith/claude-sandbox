@@ -28,7 +28,7 @@ detect_package_paths() {
   if [[ -d "/opt/homebrew" ]]; then
     paths+=("/opt/homebrew")
   elif [[ -d "/usr/local/Homebrew" ]]; then
-    paths+=("/usr/local")
+    paths+=("/usr/local/Homebrew")
   fi
   
   # User binaries (npm global, pipx, cargo, etc.)
