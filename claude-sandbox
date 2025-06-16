@@ -4,11 +4,11 @@
 # Copyright (c) 2025 Paul Smith <paulsmith@pobox.com>
 # SPDX-License-Identifier: MIT
 #
-#   claude-sandbox            # generate profile + run claude (default)
-#   claude-sandbox run …args  # same, pass args through
-#   claude-sandbox generate   # build the profile only
-#   claude-sandbox profile    # print last-generated profile path
-#   claude-sandbox help       # this text
+#   claude-sandbox                # generate profile + run claude (default)
+#   claude-sandbox run [...args]  # same, pass args through
+#   claude-sandbox generate       # build the profile only
+#   claude-sandbox profile        # print last-generated profile path
+#   claude-sandbox help           # this text
 #
 # Note: sandbox-exec(1) is deprecated but works on macOS 14 + 15 (June 2025).
 #-------------------------------------------------------------------------------
